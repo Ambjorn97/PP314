@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Удаление пользователей</title>
+</head>
+<body>
+<form th:method="POST" th:action="@{/admin/delete-user}" th:object="${user}">
+    <label for="person_select">Выберите человека</label><br>
+    <select th:field="*{id}" id="person_select">
+        <option th:each="user_from_list : ${users}" th:value="${user_from_list.getId()}"
+                th:text="${user_from_list.getUsername()}"></option>
+    </select>
+    <br>
+    <input type="submit" value="Удалить аккаунт"/>
+</form>
+<div th:insert="fragments::logoutButton"></div>
+</body>
+</html>
