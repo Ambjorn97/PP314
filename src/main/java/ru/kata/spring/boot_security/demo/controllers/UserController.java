@@ -4,13 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 import ru.kata.spring.boot_security.demo.util.UserValidator;
 
+import java.security.Principal;
+
 @Controller
-@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -20,13 +21,21 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public String userPage(@RequestParam(value = "id", required = false) Integer id, Model model) {
-        if (id == null) {
-            model.addAttribute("users", userService.findAll());
-            return "users";
-        }
-        model.addAttribute("user", userService.findById(id).get());
-        return "userPage";
+    @GetMapping("/allUsers")
+    public String users(Model model) {
+        model.addAttribute("users", userService.findAll());
+        return "layout";
+
+
+    }
+
+    @GetMapping("/user")
+    public String user(Model model) {
+        return "layout";
+    }
+
+    @ModelAttribute("user")
+    public User getAuthenticatedUser(Principal principal) {
+        return principal != null ? userService.findByUsername(principal.getName()).orElse(null) : null;
     }
 }

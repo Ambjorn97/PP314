@@ -1,6 +1,6 @@
 package ru.kata.spring.boot_security.demo.models;
 
-import javax.persistence.CascadeType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,6 +15,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -93,5 +94,10 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+    public String rolesToString() {
+        return roles.stream()
+                .map(role -> role.getName().replace("ROLE_", ""))
+                .collect(Collectors.joining(", "));
     }
 }
