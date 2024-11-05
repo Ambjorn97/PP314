@@ -7,7 +7,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -16,7 +15,6 @@ import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 import ru.kata.spring.boot_security.demo.util.UserValidator;
 
-import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/admin")
@@ -40,10 +38,8 @@ public class AdminController {
     }
 
     @PostMapping("/edit")
-    public String edit( @Valid  @ModelAttribute("user") User user, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "layout";
-        }
+    public String edit(@ModelAttribute("user") User user) {
+
         int id = user.getId();
         User exUser = userService.findById(id).get();
         exUser.setUsername(user.getUsername());
@@ -60,69 +56,9 @@ public class AdminController {
     }
 
     @PostMapping("/newUser")
-    public String newUser(@ModelAttribute("newUser") @Valid User user, BindingResult bindingResult) {
-        userValidator.validate(user, bindingResult);
-        if (bindingResult.hasErrors()) {
-            return "layout";
-        }
+    public String newUser(@ModelAttribute("newUser") User user) {
         userService.save(user);
         return "redirect:/admin";
-
     }
 
-
-//    @GetMapping("/add")
-//    public String addAdminPage(@ModelAttribute("user") User user, Model model) {
-//        model.addAttribute("users", userService.findAll());
-//        return "addAdmin";
-//    }
-//
-//    @PostMapping("/add")
-//    public String addUserToAdmin(@ModelAttribute("user") User user) {
-//        int id = user.getId();
-//        User exUser = userService.findById(id).get();
-//        Role role = roleService.findByName("ROLE_ADMIN");
-//        exUser.getRoles().add(role);
-//        userService.save(exUser);
-//        return "redirect:/admin";
-//    }
-//
-//    @GetMapping("/delete-user")
-//    public String deleteUserPage(@ModelAttribute("user") User user, Model model) {
-//        model.addAttribute("users", userService.findAll());
-//        return "deleteUser";
-//    }
-//
-//    @PostMapping("/delete-user")
-//    public String deleteUser(@ModelAttribute("user") User user) {
-//        int id = user.getId();
-//        userService.deleteById(id);
-//        return "redirect:/admin";
-//    }
-//
-//    @GetMapping("/edit")
-//    public String editPage(Model model) {
-//        model.addAttribute("users", userService.findAll());
-//        return "editUser";
-//    }
-//
-//    @GetMapping("/edit/form")
-//    public String editForm(@RequestParam(name = "id", required = false) int id, Model model) {
-//        User user = userService.findById(id).get();
-//        model.addAttribute("user", user);
-//        return "editUserForm";
-//    }
-//
-//    @PatchMapping("/edit/form")
-//    public String editUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult) {
-//        if (bindingResult.hasErrors()) {
-//            return "editUserForm";
-//        }
-//        int id = user.getId();
-//        User exUser = userService.findById(id).get();
-//        exUser.setUsername(user.getUsername());
-//        exUser.setAge(user.getAge());
-//        userService.save(exUser);
-//        return "redirect:/admin";
-//    }
 }

@@ -95,6 +95,7 @@ public class User {
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
+
     public String rolesToString() {
         return roles.stream()
                 .map(role -> role.getName().replace("ROLE_", ""))
