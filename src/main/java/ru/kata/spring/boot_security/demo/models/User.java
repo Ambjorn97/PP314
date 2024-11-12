@@ -3,7 +3,6 @@ package ru.kata.spring.boot_security.demo.models;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,11 +10,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import java.util.Objects;
+import java.util.Set;
 
 
 @Entity
@@ -28,28 +25,25 @@ public class User {
     private int id;
 
     @Column(name = "username")
-    @NotNull(message = "Имя не может быть пустым")
-    @Size(min = 2, max = 45, message = "Имя пользользователя должно быть от 2 до 45 символов")
     private String username;
 
     @Column(name = "age")
-    @Min(value = 18, message = "Возраст должен быть не меньше 18-ти")
     private int age;
 
     @Column(name = "password")
-    @Size(min = 6, message = "Пароль должен быть как минимум из 6 символов")
     private String password;
+
 
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    private List<Role> roles;
+    @ManyToMany
+    private Set<Role> roles;
 
     public User() {
     }
 
-    public User(String username, int age, String password, List<Role> roles) {
+    public User(String username, int age, String password, Set<Role> roles) {
         this.username = username;
         this.age = age;
         this.password = password;
@@ -88,17 +82,24 @@ public class User {
         this.password = password;
     }
 
-    public List<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
-    public String rolesToString() {
-        return roles.stream()
-                .map(role -> role.getName().replace("ROLE_", ""))
-                .collect(Collectors.joining(", "));
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id == user.id && Objects.equals(username, user.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username);
     }
 }

@@ -1,58 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Регистрация</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <style>
-    .form-control {
-      text-align: left;
-      font-size: 1rem;
-    }
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .form-control {
+            text-align: left;
+            font-size: 1rem;
+        }
 
-    .form-control::placeholder {
-      color: rgba(0, 0, 0, 0.5);
-    }
+        .form-control::placeholder {
+            color: rgba(0, 0, 0, 0.5);
+        }
 
-    .error-message {
-      color: red;
-    }
-  </style>
+        .error-message {
+            color: red;
+        }
+
+        .success-message {
+            color: green;
+        }
+    </style>
 </head>
 <body>
 <div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
-  <div class="col-md-4">
-    <h3 class="text-center mb-4">Создайте аккаунт</h3>
-    <form th:method="post" th:action="@{/auth/register}" th:object="${user}">
-      <div class="form-group">
-        <label for="username">Имя пользователя</label>
-        <input type="text" th:field="*{username}" id="username" class="form-control" placeholder="Имя пользователя" required autofocus/>
-        <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
-      </div>
+    <div class="col-md-4">
+        <h3 class="text-center mb-4">Создайте аккаунт</h3>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="username">Имя пользователя</label>
+                <input type="text" id="username" class="form-control" placeholder="Имя пользователя" required
+                       autofocus/>
+            </div>
 
-      <div class="form-group">
-        <label for="password">Пароль</label>
-        <input type="password" th:field="*{password}" id="password" class="form-control" placeholder="Пароль" required/>
-        <span class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
-      </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" class="form-control" placeholder="Пароль" required/>
+            </div>
 
-      <div class="form-group">
-        <label for="age">Возраст</label>
-        <input type="text" th:field="*{age}" id="age" class="form-control" placeholder="Возраст" required/>
-        <span class="error-message" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></span>
-      </div>
+            <div class="form-group">
+                <label for="age">Возраст</label>
+                <input type="number" id="age" class="form-control" placeholder="Возраст" required/>
+            </div>
 
-      <button class="btn btn-primary btn-block" type="submit">Готово</button>
-    </form>
+            <button class="btn btn-primary btn-block" type="button" onclick="registerUser()">Готово</button>
 
-    <div class="text-center mt-3">
-      <a href="/auth/login">Уже есть аккаунт? Войти</a>
+            <div id="message" class="text-center mt-3"></div>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="/auth/login">Уже есть аккаунт? Войти</a>
+        </div>
     </div>
-  </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGaZ65SAi7xMSTdURk3OYMnD7u" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIyP6BqHU6qH12g6sxtJUbO2iA6UJj1BJ0c4S6cv" crossorigin="anonymous"></script>
+
+<script>
+    async function registerUser() {
+        const userData = {
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            age: parseInt(document.getElementById("age").value, 10)
+        };
+
+        try {
+            const response = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(userData)
+            });
+
+            const messageDiv = document.getElementById("message");
+
+            if (response.ok) {
+
+                messageDiv.innerHTML = "<span class='success-message'>Регистрация успешна! Перенаправление...</span>";
+                setTimeout(() => {
+                    window.location.href = "/auth/login";
+                }, 2000);
+            } else {
+                messageDiv.innerHTML = "<span class='error-message'>Ошибка при регистрации. Проверьте введенные данные.</span>";
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("message").innerHTML = "<span class='error-message'>Ошибка соединения с сервером.</span>";
+        }
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6jHty5KVphtPhzWj9WO1clHTMGaZ65SAi7xMSTdURk3OYMnD7u"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIyP6BqHU6qH12g6sxtJUbO2iA6UJj1BJ0c4S6cv"
+        crossorigin="anonymous"></script>
 </body>
 </html>

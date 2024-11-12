@@ -25,7 +25,7 @@ public class UserValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         User user = (User) target;
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent() && user.getId() != (userRepository.findByUsername(user.getUsername()).get().getId())) {
             errors.rejectValue("username", null, "Имя уже существует");
         }
     }
