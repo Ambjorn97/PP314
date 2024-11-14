@@ -9,9 +9,11 @@ import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -71,11 +73,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Exception.class)
     public void update(User user, int id) {
         User exUser = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        Set<Role> roles = new HashSet<>();
-        for (Role role : user.getRoles()) {
-            Role exRole = roleService.findByName(role.getName());
-            roles.add(exRole);
-        }
+        Set<Role> roles;
+        roles = user.getRoles().stream().map(role -> roleService.findByName(role.getName())).collect(Collectors.toSet());
         exUser.setRoles(roles);
         exUser.setUsername(user.getUsername());
         exUser.setAge(user.getAge());
